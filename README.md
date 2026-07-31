@@ -11,7 +11,7 @@ This project predicts whether a structured patient record belongs to one of two 
 
 The repository was developed as an undergraduate machine-learning portfolio project. It demonstrates a complete workflow from raw data inspection to saving and reloading a reusable scikit-learn pipeline.
 
-The project is intended for education and portfolio demonstration only. It is not intended for clinical diagnosis or medical decision-making.
+This project is intended for education and portfolio demonstration only. It is not intended for clinical diagnosis or medical decision-making.
 
 ## Problem Statement
 
@@ -48,16 +48,16 @@ The cleaned dataset contains:
 | Total records | 4,238 |
 | Total columns | 16 |
 | Input features | 15 |
-| Target column | 1 |
+| Target column | `heart_disease` |
 | Positive-class proportion | Approximately 15.2% |
 | Duplicate rows | 0 |
 
-Files:
+Dataset files:
 
 - Raw dataset: `data/raw/heart_disease.csv`
 - Cleaned dataset: `data/processed/heart_disease_clean.csv`
 
-Missing feature values were deliberately preserved during data cleaning. They are handled later inside the scikit-learn preprocessing pipelines to prevent leakage and ensure consistent processing.
+Missing feature values were deliberately preserved during data cleaning. They are handled later inside the scikit-learn preprocessing pipelines to reduce data leakage and ensure consistent processing.
 
 The dataset source is not explicitly documented in this repository, so no external dataset name is claimed.
 
@@ -95,20 +95,12 @@ The dataset source is not explicitly documented in this repository, so no extern
 
 ## Target Variable
 
-The target column is:
+The target column is `heart_disease`, where:
 
-```text
-heart_disease
-```
+- `0` represents no heart disease
+- `1` represents heart disease
 
-Class meanings:
-
-```text
-0 = No heart disease
-1 = Heart disease
-```
-
-The positive class represents only approximately 15.2% of the dataset. A stratified train-test split was therefore used to preserve approximately the same class distribution in both training and testing data.
+The positive class represents approximately 15.2% of the dataset. A stratified train-test split was used to preserve approximately the same class distribution in both the training and testing sets.
 
 ## Project Workflow
 
@@ -171,7 +163,7 @@ The EDA was used to understand the data structure and support preprocessing and 
 
 ## Preprocessing
 
-The project uses:
+The project uses the following scikit-learn components:
 
 - `Pipeline`
 - `ColumnTransformer`
@@ -192,7 +184,7 @@ The project uses:
 - Categorical features: most-frequent imputation and one-hot encoding
 - No standard scaling
 
-A `ColumnTransformer` applies the correct processing steps to each feature group. A `Pipeline` combines preprocessing and the classifier into one reusable object.
+A `ColumnTransformer` applies the appropriate preprocessing steps to each feature group. A `Pipeline` combines preprocessing and the classifier into one reusable object.
 
 During evaluation, preprocessing was fitted using training data only. The test set was transformed using the rules learned from the training set. This reduces data leakage.
 
@@ -227,7 +219,7 @@ Accuracy alone can be misleading because most records belong to Class 0. PR-AUC 
 
 ## Model Comparison
 
-The following values are holdout testing results.
+The following values are holdout testing results:
 
 | Model | Accuracy | Precision | Recall | F1-score | ROC-AUC | PR-AUC |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -235,11 +227,7 @@ The following values are holdout testing results.
 | Random Forest | 0.8396 | 0.2941 | 0.0388 | 0.0685 | 0.6552 | 0.2341 |
 | Decision Tree | 0.7311 | 0.1765 | 0.2093 | 0.1915 | 0.5170 | 0.1572 |
 
-The complete comparison report is available at:
-
-```text
-reports/model_comparison.csv
-```
+The complete comparison report is available at `reports/model_comparison.csv`.
 
 ## Selected Model
 
@@ -266,12 +254,10 @@ The selected model is not suitable for medical or clinical use.
 
 The final saved files are:
 
-```text
-models/heart_disease_prediction_pipeline.joblib
-models/heart_disease_model_metadata.json
-```
+- `models/heart_disease_prediction_pipeline.joblib`
+- `models/heart_disease_model_metadata.json`
 
-The `.joblib` file contains:
+The `.joblib` file contains both:
 
 ```text
 Preprocessing pipeline
@@ -287,7 +273,7 @@ The model-selection process and final saved artifact are different:
 
 - Holdout testing results were used for honest model comparison
 - After selection, the chosen pipeline was retrained using the complete cleaned dataset
-- The retrained pipeline was then saved for demonstration and future prediction use
+- The retrained pipeline was saved for technical demonstration and reproducible prediction testing
 
 ## Repository Structure
 
@@ -296,9 +282,8 @@ heart-disease-ml-classification/
 ├── data/
 │   ├── raw/
 │   │   └── heart_disease.csv
-│   ├── processed/
-│   │   └── heart_disease_clean.csv
-│   └── README.md
+│   └── processed/
+│       └── heart_disease_clean.csv
 ├── models/
 │   ├── heart_disease_model_metadata.json
 │   └── heart_disease_prediction_pipeline.joblib
@@ -380,16 +365,17 @@ Run the notebooks in this order:
 
 Later notebooks depend on datasets, reports, or model files generated by earlier notebooks.
 
-## Loading the Saved Model
+## Loading the Saved Model and Making a Prediction
 
-The saved pipeline can be loaded from a Jupyter notebook or Python environment.
+The saved Joblib file contains both the preprocessing steps and the trained Logistic Regression classifier.
 
-This example works when executed from either the project root or the `notebooks` folder:
+The following example works when executed from either the project root or the `notebooks` directory:
 
 ```python
 from pathlib import Path
 
 import joblib
+import pandas as pd
 
 current_directory = Path.cwd()
 
@@ -410,26 +396,6 @@ if not model_path.exists():
     )
 
 loaded_model = joblib.load(model_path)
-
-print("Model loaded successfully.")
-print("Pipeline steps:", loaded_model.named_steps.keys())
-```
-
-Expected pipeline steps:
-
-```text
-preprocessor
-classifier
-```
-
-Only load `.joblib` files from trusted sources because serialized Python files can execute code when loaded.
-
-## Making a Prediction
-
-The saved pipeline expects all 15 original input features.
-
-```python
-import pandas as pd
 
 synthetic_patient = pd.DataFrame([
     {
@@ -473,7 +439,9 @@ print(
 )
 ```
 
-The example record is synthetic and is included only to demonstrate the technical prediction workflow.
+The sample record is synthetic and is included only to demonstrate the technical prediction workflow.
+
+Only load `.joblib` files from trusted sources because serialized Python files can execute code when loaded.
 
 ## Key Learning Outcomes
 
