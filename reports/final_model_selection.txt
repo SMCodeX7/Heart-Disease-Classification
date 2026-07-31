@@ -1,0 +1,8 @@
+Selected Model: Logistic Regression
+Primary Selection Metric: PR-AUC
+PR-AUC: 0.2937
+ROC-AUC: 0.6952
+Recall: 0.0543
+F1 Score: 0.0952
+Accuracy: 0.8432
+Precision: 0.3889
